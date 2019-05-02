@@ -1,0 +1,45 @@
+
+public class Scenario {
+
+	private String idscenario;
+	private String nom;
+	private String description;
+
+	public Scenario (String IDscenario, String nom, String description)
+	{
+		this.idscenario=IDscenario;
+		this.nom=nom;
+		this.description = description;
+	}
+
+	public String getIDscenario()
+	{
+		return this.idscenario;
+	}
+
+	public String getNom()
+	{
+		return this.nom;
+	}
+
+	public String getDescription()
+	{
+		return this.description;
+	}
+
+	public void setScenario(String idscenario) {
+		this.idscenario = idscenario;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String toString() {
+		return ("ID : " + this.idscenario + " nom : " + this.nom + " description : " + this.description); 
+	}
+}
