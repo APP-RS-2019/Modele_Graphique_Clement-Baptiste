@@ -1,0 +1,119 @@
+import java.util.ArrayList;
+import java.awt.geom.Point2D;
+import java.io.Serializable;
+
+public class Flotte implements Serializable{
+	/*La classe Flotte est la source d'evenement lie aux deplacements
+	 * des robots*/
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String idflotte;
+	private ArrayList<Robot> robots;
+	private int tailleFlotte;
+	public ArrayList <Listener> ecouteurs = new ArrayList <Listener>();
+	
+	public Flotte(String idflotte)
+	{
+		this.idflotte=idflotte;
+		this.robots = new ArrayList<Robot> ();
+		this.tailleFlotte=0;
+	}
+	
+	public String getIDflotte(){
+		return this.idflotte;
+	}
+	
+	public void setIDflotte(String idflotte) {
+		this.idflotte = idflotte;
+	}
+	
+	public void addRobot(Robot robot)
+	{
+		RobotEvent lis = new RobotEvent();
+		this.addListener(lis);
+		this.robots.add(robot);
+		this.tailleFlotte++;
+	}
+	
+	public void deleteRobot(Robot robot)
+	{
+		this.robots.remove(robot);
+		this.tailleFlotte--;
+	}
+	
+	public void afficheFlotte()
+	{
+		for (int i = 0; i< this.robots.size(); i++) {
+			System.out.println(this.robots.get(i).toString());
+		}
+	}
+
+	public Robot contenuFlotte(int index) {
+		return robots.get(index);
+	}
+
+	public int tailleFlotte() {
+		return tailleFlotte;
+	}
+	
+	public String toString() {
+		String ret="La flotte contient les Robots :\n";
+		for (int i=0; i<this.tailleFlotte;i++) {
+			ret+=this.robots.get(i).toString()+"\n";
+		}
+		return ret;
+	}
+	
+	public void intentionToMove(Robot robot, float x, float y) {
+		System.out.print("Tentative de déplacement du robot " + robot.getNom() + "\n");
+		System.out.print("Aux coordonnées " + x + " : " + y + "\n");
+		ArrayList<Double> distances = new ArrayList<Double>(); 
+		
+		if ((x<0.0 || y<0.0 ) ||
+				(x>1200.0 || y>600.0)) {
+			generateForbiddenMoveEvent(x,y);
+			return;
+		}
+		
+		for (int i = 0; i< robots.size(); i++){
+			if (i!=robots.indexOf(robot)) {
+				distances.add(Point2D.distance(x, y, robots.get(i).getPosx(), robots.get(i).getPosy()));
+			}
+			
+			for (double d : distances) {
+				if (d<30.0 && (i!=robots.indexOf(robot))){
+					generateCheckCollisionEvent(x,y);
+					return ;
+				}
+			}
+		}
+		robot.setPosx(x); robot.setPosy(y);
+		System.out.println("Deplacement réussi");
+		System.out.println("Nouvelle position : "+ robot.getPosx() + " : " + robot.getPosy());
+	}
+
+	public void addListener(Listener lis) {
+		ecouteurs.add(lis);
+	}
+	
+	public void generateCheckCollisionEvent (float x, float y) {
+		CheckCollisionEvent e = new CheckCollisionEvent(this,x,y);
+		ecouteurs.get(0).notif(e);
+	}
+	
+	private void generateForbiddenMoveEvent(float posX, float posY) {
+		// TODO Auto-generated method stub
+		ForbiddenMoveEvent e = new ForbiddenMoveEvent(this, posX, posY);
+		ecouteurs.get(0).notif(e);
+	}
+	public void viderFlotte(ModeleStatique modele) {
+		int size =this.tailleFlotte;
+			for(int i=0;i<size;i++) {
+				deleteRobot(contenuFlotte(size-i-1));
+				modele.removeRobot(size-i-1);
+			}
+	}
+}
