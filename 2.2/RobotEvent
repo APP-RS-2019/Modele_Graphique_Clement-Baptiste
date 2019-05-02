@@ -1,0 +1,21 @@
+import java.io.Serializable;
+
+public class RobotEvent implements Listener, Serializable{
+	/*Classe permettant l'implémentation des différents écouteurs*/
+
+	@Override
+	public void notif(CheckCollisionEvent e) {
+		// TODO Auto-generated method stub
+		new Problem_Dialog(null, "Problème de collision", true, "Risque de collision en : " + e.posX + " : " + e.posY);
+	}
+
+	@Override
+	public void notif(ForbiddenMoveEvent e) {
+		// TODO Auto-generated method stub
+		new Problem_Dialog(null, "Mouvement Interdit", true, "Mouvement interdit à la position : " + e.posX + " : " + e.posY);
+	}
+	
+	public void notif(NotFoundCapaciteEvent e) {
+		new Problem_Dialog(null, "Action impossible", true, "Action demandé " + e.capacite.getNom() + " n'est pas dans les capacites du robots");
+	}
+}
