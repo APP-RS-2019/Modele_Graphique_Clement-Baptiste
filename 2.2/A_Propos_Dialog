@@ -1,0 +1,25 @@
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.*;
+
+public class A_Propos_Dialog extends JDialog{
+	private JTextArea text=new JTextArea();
+	private String texte="Ce logiciel a pour but de vous permettre\nde gérer une flotte de robot, de les créer\nindividuellement, d'en sélectionner une\npartie et d'interagir avec eux.\n\nPour plus d'information, dirigez vous\nvers la section \"Documentation\"";//="texte à afficher";
+	public A_Propos_Dialog(JFrame parent, String title, boolean modal) {
+		super(parent,title,modal);
+		this.setSize(500, 300);
+		text.setFont(new Font(text.getText(),Font.BOLD,24));
+		text.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue)));
+		text.setBackground(Color.lightGray);
+		text.setText(texte);
+		text.setEditable(false);
+		this.add(text);
+		this.setVisible(true);
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	}
+	
+	
+	
+
+}
