@@ -1,0 +1,162 @@
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+
+public class Menu extends JFrame {
+	private static final long serialVersionUID = 1L;
+
+	private Menu mainFrame;
+
+	public JTable tableauSelect;
+	public JTable tabRobots;
+	private ModeleStatique modeleFlotte;
+	private ModeleStatique modeleRobotsSelect;
+
+	private Flotte flotte;
+	public Flotte robotsSelect;
+	private JMenuBar menuBar = new JMenuBar();
+
+	private JMenu fichier = new JMenu("Fichier");
+	private JMenu ouvrir_recent = new JMenu("Ouvert récemment");
+	private JMenu edition = new JMenu("Edition");
+	private JMenu aide = new JMenu("Aide");
+
+	private JMenuItem ouvrir = new JMenuItem("Ouvrir");
+	private JMenuItem sauvegarder = new JMenuItem("Sauvegarder");
+	private JMenuItem fermer = new JMenuItem("Fermer");
+	private JMenuItem ajout_robot = new JMenuItem("Ajout robot");
+	private JMenuItem voir_flotte = new JMenuItem("Voir flotte");
+	private JMenuItem documentation = new JMenuItem("Documentation");
+	private JMenuItem a_propos = new JMenuItem("À propos");
+
+	private JMenuItem exe1 = new JMenuItem("Exemple1.ex");
+	private JMenuItem exe2 = new JMenuItem("Exemple2.ex");
+
+	public static void main(String[] args){  
+		new Menu();
+	}
+
+	public Menu(){
+		this.mainFrame=this;
+		this.flotte=new Flotte("0");
+		this.robotsSelect=new Flotte("1");
+		this.setTitle("APP - RS - 2019");
+		this.setExtendedState(Frame.MAXIMIZED_BOTH);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocationRelativeTo(null);
+
+		this.fichier.add(ouvrir);
+
+		this.ouvrir_recent.add(exe1);
+		this.ouvrir_recent.add(exe2);
+
+		this.fichier.add(ouvrir_recent);
+		this.fichier.add(sauvegarder);
+
+		this.fichier.addSeparator();
+
+		fermer.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}        
+		});
+
+		this.fichier.add(fermer);
+		this.edition.add(ajout_robot);
+		this.modeleFlotte=new ModeleStatique(this.flotte);
+		this.modeleRobotsSelect=new ModeleStatique(this.robotsSelect);
+		this.tabRobots = new JTable(modeleFlotte);
+		this.tableauSelect = new JTable(modeleRobotsSelect);
+
+		this.edition.add(voir_flotte);
+		this.aide.add(documentation);
+		this.aide.add(a_propos);
+
+		this.menuBar.add(fichier);
+		this.menuBar.add(edition);
+		this.menuBar.add(aide);
+		this.setJMenuBar(menuBar);
+
+		Panneau[] tPan = {new Panneau("Gestion",flotte,this.robotsSelect, this.tableauSelect,this.tabRobots,this.modeleFlotte,this.modeleRobotsSelect), new Panneau("Action",this.flotte,this.robotsSelect,this.tableauSelect,this.tabRobots,this.modeleFlotte,this.modeleRobotsSelect),new Panneau("Simulation",flotte,this.robotsSelect,this.tableauSelect,this.tabRobots,this.modeleFlotte,this.modeleRobotsSelect)};
+		JTabbedPane onglet = new JTabbedPane();
+		onglet.add("Gestion", tPan[0]);
+		onglet.add("Action", tPan[1]);
+		onglet.add("Simulation",tPan[2]);
+
+		ajout_robot.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				new Ajout_Robot_Dialog(null, "Ajout robot", true,flotte,tabRobots,modeleFlotte);
+				tPan[0].initComponent(30);
+			}        
+		});
+
+		sauvegarder.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				final JFileChooser fc = new JFileChooser();
+				fc.showSaveDialog(Menu.this);
+				File file = new File(fc.getSelectedFile() +  ".obj");
+				try {
+					FileOutputStream f = new FileOutputStream(file);
+					ObjectOutputStream oos = new ObjectOutputStream(f);
+					oos.writeObject(flotte);
+					oos.close();
+					new Problem_Dialog(null, "Enregistrement réussit", true, "Enregistrement réussit");
+				}
+				catch (Exception ex) {
+					ex.printStackTrace();
+					new Problem_Dialog(null,"Problème d'enregistrement", true, "Erreur d'enregistrement");
+				}
+			}});
+
+		ouvrir.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+					final JFileChooser fc = new JFileChooser();
+
+					fc.showOpenDialog(Menu.this);
+					File file = fc.getSelectedFile();
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		a_propos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new A_Propos_Dialog(null,"A propos",true);
+			}
+			
+		});
+		this.getContentPane().add(onglet);
+		this.setVisible(true);
+	}
+}
