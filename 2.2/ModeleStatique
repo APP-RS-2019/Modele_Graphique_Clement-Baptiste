@@ -1,0 +1,63 @@
+import java.awt.Color;
+import java.awt.List;
+import java.util.ArrayList;
+
+import javax.swing.table.AbstractTableModel;
+
+public class ModeleStatique extends AbstractTableModel {
+    private final ArrayList<Robot> robots= new ArrayList<Robot>();
+    private final String[] entetes = {"Url", "Nom", "Posx", "Posy","Angle"};
+ 
+    public ModeleStatique(Flotte flotte) {
+        super();
+        for (int i=0;i<flotte.tailleFlotte();i++) {
+        	robots.add(flotte.contenuFlotte(i));
+        }
+    }
+ 
+    public int getRowCount() {
+        return robots.size();
+    }
+ 
+    public int getColumnCount() {
+        return entetes.length;
+    }
+ 
+    public String getColumnName(int columnIndex) {
+        return entetes[columnIndex];
+    }
+ 
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        switch(columnIndex){
+            case 0:
+                return robots.get(rowIndex).getUrl();
+            case 1:
+                return robots.get(rowIndex).getNom();
+            case 2:
+                return robots.get(rowIndex).getPosx();
+            case 3:
+                return robots.get(rowIndex).getPosy();
+            case 4:
+            	return robots.get(rowIndex).getAngle();
+            default:
+                return null; //Ne devrait jamais arriver
+        }
+    }
+    
+    public void addRobot(Robot rob) {
+    	robots.add(rob);
+    	fireTableRowsInserted(robots.size() -1, robots.size() -1);
+    }
+    
+    public void removeRobot(int index) {
+    	robots.remove(index);
+    	fireTableRowsDeleted(index, index);
+    }
+    public void removeAll() {
+    	int size=robots.size();
+    	for(int i=0;i<robots.size();i++) {
+    		robots.remove(size-i);
+    		fireTableRowsDeleted(i, i);
+    	}
+    }
+}
