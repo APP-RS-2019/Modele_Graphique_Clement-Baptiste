@@ -1,0 +1,72 @@
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+public class CanvasSimulation extends Canvas{
+	Flotte flotte;
+	private BufferedImage imgPepper;
+	private BufferedImage imgNao;
+	private BufferedImage imgRobotino;
+	private BufferedImage imgQuelconque;
+	public CanvasSimulation(Flotte flotte) {
+		this.flotte=flotte;
+		try {
+			imgPepper = ImageIO.read(new File("C:\\Users\\Utilisateur\\Desktop\\Cours\\APP\\imgPepper.jpg"));
+			imgNao = ImageIO.read(new File("C:\\Users\\Utilisateur\\Desktop\\Cours\\APP\\imgNao.jpg"));
+			imgRobotino=ImageIO.read(new File("C:\\Users\\Utilisateur\\Desktop\\Cours\\APP\\imgRobotino.jpg"));
+			imgQuelconque=ImageIO.read(new File("C:\\Users\\Utilisateur\\Desktop\\Cours\\APP\\imgQuelconque.jpg"));
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public void paint(Graphics  g) {
+		g.setColor(Color.black);
+		g.drawLine(0, 0, 0, 599);g.drawLine(1199, 0, 1199, 599);g.drawLine(0, 0, 1199, 0);g.drawLine(0, 599, 1199, 599);
+		for (int i=0;i<60;i++) {
+			g.drawLine(20*i, 0, 20*i, 5);
+		}
+		for (int i=0;i<30;i++) {
+			g.drawLine(0, 20*i, 5, 20*i);
+		}
+		for(int i=0;i<flotte.tailleFlotte();i++) {
+			Graphics2D g2d = (Graphics2D) g;
+			
+			if (flotte.contenuFlotte(i).getNom().equals("Pepper")) {
+				Robot robSel=flotte.contenuFlotte(i);
+				float teta =(float)(robSel.getAngle()*Math.PI/180);
+				g2d.rotate(-teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));
+				g2d.drawImage(imgPepper, (int)flotte.contenuFlotte(i).getPosx(), (int)flotte.contenuFlotte(i).getPosy(), this);
+				g2d.rotate(teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));}
+			else if (flotte.contenuFlotte(i).getNom().equals("Nao")) {
+				Robot robSel=flotte.contenuFlotte(i);
+				float teta =(float)(robSel.getAngle()*Math.PI/180);
+				g2d.rotate(-teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));
+				g2d.drawImage(imgNao, (int)flotte.contenuFlotte(i).getPosx(), (int)flotte.contenuFlotte(i).getPosy(), this);
+				g2d.rotate(teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));}
+			else if (flotte.contenuFlotte(i).getNom().equals("Robotino")) {
+				Robot robSel=flotte.contenuFlotte(i);
+				float teta =(float)(robSel.getAngle()*Math.PI/180);
+				g2d.rotate(-teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));
+				g2d.drawImage(imgRobotino, (int)flotte.contenuFlotte(i).getPosx(), (int)flotte.contenuFlotte(i).getPosy(), this);
+				g2d.rotate(teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));}
+//			else if (flotte.contenuFlotte(i).getNom().equals("Pekee")) {
+//				Robot robSel=flotte.contenuFlotte(i);
+//				float teta =(float)(robSel.getAngle()*Math.PI/180);
+//				g2d.rotate(-teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));
+//				g2d.drawImage(imgPekee, (int)flotte.contenuFlotte(i).getPosx(), (int)flotte.contenuFlotte(i).getPosy(), this);}
+			else {				
+				Robot robSel=flotte.contenuFlotte(i);
+				float teta =(float)(robSel.getAngle()*Math.PI/180);
+				g2d.rotate(-teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));
+				g2d.drawImage(imgQuelconque, (int)flotte.contenuFlotte(i).getPosx(), (int)flotte.contenuFlotte(i).getPosy(), this);
+				g2d.rotate(teta,(int)(flotte.contenuFlotte(i).getPosx()+20),(int)(flotte.contenuFlotte(i).getPosy()+20));
+			}
+		}
+
+	}
+}
