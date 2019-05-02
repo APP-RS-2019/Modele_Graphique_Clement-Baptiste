@@ -1,0 +1,6 @@
+public interface Listener{
+	/*Interface des ecouteurs*/
+	public void notif(CheckCollisionEvent e);
+	public void notif(ForbiddenMoveEvent e);
+	public void notif(NotFoundCapaciteEvent e);
+}
