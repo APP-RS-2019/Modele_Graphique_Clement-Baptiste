@@ -1,0 +1,112 @@
+import java.io.Serializable;
+import java.util.ArrayList;
+
+public class Robot implements Serializable{
+	/*La classe Robot est la source d'evenement lie aux capacites
+	 * du robot*/
+
+	private String robotUrl;
+	private String nom;
+	private float posx,posy,angle;
+	ArrayList <Capacite> capacites = new ArrayList<Capacite>();
+	ArrayList <Listener> ecouteurs = new ArrayList <Listener>();
+
+	public Robot (String robotUrl, String nom) {
+		this.robotUrl=robotUrl;
+		this.nom=nom;
+		this.posx=0;
+		this.posy=0;
+		this.angle=0;
+		this.capacites = new ArrayList<Capacite>();
+		
+	}
+	public Robot (String robotUrl, String nom, float posx, float posy,float angle){
+		this.robotUrl=robotUrl;
+		this.nom=nom;
+		this.posx=posx;
+		this.posy=posy;
+		this.angle=angle;
+		this.capacites = new ArrayList<Capacite>();
+	}
+
+	public String getUrl()
+	{
+		return this.robotUrl;
+	}
+
+	public String getNom()
+	{
+		return this.nom;
+	}
+
+	public float getPosx() {
+		return this.posx;
+	}
+
+	public float getPosy() {
+		return this.posy;
+	}
+	public float getAngle() {
+		return this.angle;
+	}
+
+	public void setUrl(String url) {
+		this.robotUrl = url;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public void setPosx(float posx) {
+		this.posx=posx;
+	}
+	public void setAngle(float angle) {
+		this.angle=angle;
+	}
+
+	public void setPosy(float posy) {
+		this.posy=posy;
+	}
+
+	public String toString() {
+		return ("Nom : " + this.nom + " adresse : " + this.robotUrl);	
+	}
+	
+	public void addCapacite(Capacite capacite) {
+		RobotEvent lis = new RobotEvent();
+		this.addListener(lis);
+		this.capacites.add(capacite);
+	}
+	
+	public void deleteCapacite(Capacite capacite) {
+		this.capacites.remove(capacite);
+	}
+	
+	public void afficheCapacite() {
+		for (int i = 0; i< this.capacites.size(); i++) {
+			System.out.println(this.capacites.get(i).toString());
+		}
+	}
+	
+	public void useCapacite(Capacite capacite) {
+		if (this.capacites.contains(capacite)) {
+			System.out.println("Action " + capacite.getNom() + " effectuee");
+		}
+		
+		else {
+			generateNotFoundCapaciteEvent(capacite);
+		}
+	}
+	
+	public void addListener(Listener lis) {
+		ecouteurs.add(lis);
+	}
+	
+	public void generateNotFoundCapaciteEvent (Capacite capacite) {
+		NotFoundCapaciteEvent e = new NotFoundCapaciteEvent(this, capacite);
+		for (Listener lis : ecouteurs) {
+			lis.notif(e);
+		}
+	}
+}
