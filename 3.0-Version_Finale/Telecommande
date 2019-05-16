@@ -1,0 +1,181 @@
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
+public class Telecommande extends JDialog{
+	String nomRobot;
+
+	public Telecommande(JFrame parent, String nomRobot, boolean modal) {
+		super(parent,nomRobot,modal);
+		this.nomRobot=nomRobot;
+		this.initComponent();
+		//On spÃ©cifie une taille
+		this.setSize(500, 500);
+		//La position
+		this.setLocationRelativeTo(null);
+		//La boÃ®te ne devra pas Ãªtre redimensionnable
+		this.setResizable(true);
+		//Enfin on l'affiche
+		this.setVisible(true);
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+
+	}
+	public void initComponent() {
+		Dimension dim = new Dimension(50,50);
+		switch(nomRobot)
+		{
+		case "Pepper":
+			JPanel telecomPepper = new JPanel();
+			telecomPepper.setPreferredSize(new Dimension(170,170));
+			telecomPepper.setBorder(BorderFactory.createLineBorder(Color.black));
+			telecomPepper.setBackground(Color.white);
+			telecomPepper.setLayout(new GridBagLayout());
+			GridBagConstraints gbcPepper = new GridBagConstraints();
+
+			JPanel mail = new JPanel();
+			mail.setLayout(new GridLayout(2,1));mail.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue), "mail"));
+			JButton buttonMail=new JButton ("envoyer un mail");buttonMail.setSize(150, 25);buttonMail.setBackground(Color.blue);buttonMail.setForeground(Color.white);
+			JTextField textMail = new JTextField();
+			textMail.setBackground(Color.white);
+			textMail.setPreferredSize(new Dimension(150,25));
+			mail.add(textMail);mail.add(buttonMail);
+
+			JButton avancerPepper = new JButton("avancer");avancerPepper.setPreferredSize(dim);avancerPepper.setBackground(Color.lightGray);avancerPepper.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton droitePepper = new JButton("droit");droitePepper.setPreferredSize(dim);droitePepper.setBackground(Color.lightGray);droitePepper.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton gauchePepper = new JButton("gauche");gauchePepper.setPreferredSize(dim);gauchePepper.setBackground(Color.lightGray);gauchePepper.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton reculerPepper = new JButton("reculer");reculerPepper.setPreferredSize(dim);reculerPepper.setBackground(Color.lightGray);reculerPepper.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton rotationDroitePepper =new JButton("â†’");rotationDroitePepper.setPreferredSize(dim);rotationDroitePepper.setBackground(Color.lightGray);rotationDroitePepper.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton rotationGauchePepper =new JButton("â†�");rotationGauchePepper.setPreferredSize(dim);rotationGauchePepper.setBackground(Color.lightGray);rotationGauchePepper.setBorder(BorderFactory.createRaisedBevelBorder());
+			
+			gbcPepper.gridx=0; gbcPepper.gridy=0;gbcPepper.gridheight=1;gbcPepper.gridwidth=1;
+			telecomPepper.add(rotationDroitePepper,gbcPepper);
+			gbcPepper.gridx=1;
+			telecomPepper.add(avancerPepper,gbcPepper);
+			gbcPepper.gridx=2;
+			telecomPepper.add(rotationGauchePepper,gbcPepper);
+			gbcPepper.gridwidth= GridBagConstraints.REMAINDER ;gbcPepper.gridx=2;
+			gbcPepper.gridx=0; gbcPepper.gridy=1;gbcPepper.gridheight=1;gbcPepper.gridwidth=1;
+			telecomPepper.add(gauchePepper,gbcPepper);
+			gbcPepper.gridx=1;
+			gbcPepper.gridx=2;
+			telecomPepper.add(droitePepper,gbcPepper);
+			gbcPepper.gridx=0;gbcPepper.gridy=2;
+			gbcPepper.gridx=1;
+			telecomPepper.add(reculerPepper,gbcPepper);
+
+			this.setLayout(new FlowLayout());
+			this.add(telecomPepper);this.add(mail); 
+			buttonMail.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					Mail sMail;
+					try {
+						Mail.main(textMail.getText());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					textMail.setText("");
+				}
+			});
+			break;
+		case "Nao":
+			JPanel telecomNao = new JPanel();
+			telecomNao.setPreferredSize(new Dimension(170,170));
+			telecomNao.setBorder(BorderFactory.createLineBorder(Color.black));
+			telecomNao.setBackground(Color.white);
+			telecomNao.setLayout(new GridBagLayout());
+			GridBagConstraints gbcNao = new GridBagConstraints();
+
+			JButton avancerNao = new JButton("avancer");avancerNao.setPreferredSize(dim);avancerNao.setBackground(Color.lightGray);avancerNao.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton droiteNao = new JButton("droit");droiteNao.setPreferredSize(dim);droiteNao.setBackground(Color.lightGray);droiteNao.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton gaucheNao = new JButton("gauche");gaucheNao.setPreferredSize(dim);gaucheNao.setBackground(Color.lightGray);gaucheNao.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton reculerNao = new JButton("reculer");reculerNao.setPreferredSize(dim);reculerNao.setBackground(Color.lightGray);reculerNao.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton rotationDroiteNao =new JButton("â†’");rotationDroiteNao.setPreferredSize(dim);rotationDroiteNao.setBackground(Color.lightGray);rotationDroiteNao.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton rotationGaucheNao =new JButton("â†�");rotationGaucheNao.setPreferredSize(dim);rotationGaucheNao.setBackground(Color.lightGray);rotationGaucheNao.setBorder(BorderFactory.createRaisedBevelBorder());
+			
+			gbcNao.gridx=0; gbcNao.gridy=0;gbcNao.gridheight=1;gbcNao.gridwidth=1;
+			telecomNao.add(rotationDroiteNao,gbcNao);
+			gbcNao.gridx=1;
+			telecomNao.add(avancerNao,gbcNao);
+			gbcNao.gridx=2;
+			telecomNao.add(rotationGaucheNao,gbcNao);
+			gbcNao.gridwidth= GridBagConstraints.REMAINDER ;gbcNao.gridx=2;
+			gbcNao.gridx=0; gbcNao.gridy=1;gbcNao.gridheight=1;gbcNao.gridwidth=1;
+			telecomNao.add(gaucheNao,gbcNao);
+			gbcNao.gridx=1;
+			gbcNao.gridx=2;
+			telecomNao.add(droiteNao,gbcNao);
+			gbcNao.gridx=0;gbcNao.gridy=2;
+			gbcNao.gridx=1;
+			telecomNao.add(reculerNao,gbcNao);
+			this.setLayout(new FlowLayout());
+			this.add(telecomNao);
+			break;
+		case "Robotino":
+			JPanel telecomRobotino = new JPanel();
+			telecomRobotino.setPreferredSize(new Dimension(170,170));
+			telecomRobotino.setBorder(BorderFactory.createLineBorder(Color.black));
+			telecomRobotino.setBackground(Color.white);
+			telecomRobotino.setLayout(new GridBagLayout());
+			GridBagConstraints gbcRobotino = new GridBagConstraints();
+
+
+			JButton avancerRobotino = new JButton("avancer");avancerRobotino.setPreferredSize(dim);avancerRobotino.setBackground(Color.lightGray);avancerRobotino.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton droiteRobotino = new JButton("droit");droiteRobotino.setPreferredSize(dim);droiteRobotino.setBackground(Color.lightGray);droiteRobotino.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton gaucheRobotino = new JButton("gauche");gaucheRobotino.setPreferredSize(dim);gaucheRobotino.setBackground(Color.lightGray);gaucheRobotino.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton reculerRobotino = new JButton("reculer");reculerRobotino.setPreferredSize(dim);reculerRobotino.setBackground(Color.lightGray);reculerRobotino.setBorder(BorderFactory.createRaisedBevelBorder());
+
+			gbcRobotino.gridx=0; gbcRobotino.gridy=0;gbcRobotino.gridheight=1;gbcRobotino.gridwidth=1;
+			gbcRobotino.gridx=1;
+			telecomRobotino.add(avancerRobotino,gbcRobotino);
+			gbcRobotino.gridwidth= GridBagConstraints.REMAINDER ;gbcRobotino.gridx=2;
+			gbcRobotino.gridx=0; gbcRobotino.gridy=1;gbcRobotino.gridheight=1;gbcRobotino.gridwidth=1;
+			telecomRobotino.add(gaucheRobotino,gbcRobotino);
+			gbcRobotino.gridx=1;
+			gbcRobotino.gridx=2;
+			telecomRobotino.add(droiteRobotino,gbcRobotino);
+			gbcRobotino.gridx=0;gbcRobotino.gridy=2;
+			gbcRobotino.gridx=1;
+			telecomRobotino.add(reculerRobotino,gbcRobotino);
+			this.setLayout(new FlowLayout());
+			this.add(telecomRobotino);
+
+			break;
+		case "peeckee":
+			JPanel telecom = new JPanel();
+			telecom.setPreferredSize(new Dimension(170,170));
+			telecom.setBorder(BorderFactory.createLineBorder(Color.black));
+			telecom.setBackground(Color.white);
+			telecom.setLayout(new GridBagLayout());
+			GridBagConstraints gbc = new GridBagConstraints();
+
+
+			JButton avancer = new JButton("avancer");avancer.setPreferredSize(dim);avancer.setBackground(Color.lightGray);avancer.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton droite = new JButton("droit");droite.setPreferredSize(dim);droite.setBackground(Color.lightGray);droite.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton gauche = new JButton("gauche");gauche.setPreferredSize(dim);gauche.setBackground(Color.lightGray);gauche.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton reculer = new JButton("reculer");reculer.setPreferredSize(dim);reculer.setBackground(Color.lightGray);reculer.setBorder(BorderFactory.createRaisedBevelBorder());
+
+			gbc.gridx=0; gbc.gridy=0;gbc.gridheight=1;gbc.gridwidth=1;
+			gbc.gridx=1;
+			telecom.add(avancer,gbc);
+			gbc.gridwidth= GridBagConstraints.REMAINDER ;gbc.gridx=2;
+			gbc.gridx=0; gbc.gridy=1;gbc.gridheight=1;gbc.gridwidth=1;
+			telecom.add(gauche,gbc);
+			gbc.gridx=1;
+			gbc.gridx=2;
+			telecom.add(droite,gbc);
+			gbc.gridx=0;gbc.gridy=2;
+			gbc.gridx=1;
+			telecom.add(reculer,gbc);
+			this.setLayout(new FlowLayout());
+			this.add(telecom);
+
+			break;
+		}
+
+	}
+
+}
