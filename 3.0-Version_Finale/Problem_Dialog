@@ -1,0 +1,37 @@
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
+public class Problem_Dialog extends JDialog{
+	
+	private JTextArea messageLabel;
+	
+	public Problem_Dialog(JFrame parent,String title, boolean modal,String message) {
+		super(parent, title, modal);
+		this.initComponent(message);
+		this.setSize(300, 200);
+		this.setLocationRelativeTo(null);
+		this.setResizable(false);
+		this.setVisible(true);
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	}
+	
+	private void initComponent(String message) {
+		messageLabel = new JTextArea(message);
+		messageLabel.setEditable(false);
+		JButton okBouton = new JButton("OK");
+		okBouton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {        
+				setVisible(false);
+			}});
+		this.add(messageLabel, BorderLayout.CENTER);
+		this.add(okBouton , BorderLayout.SOUTH);
+	}
+
+}
