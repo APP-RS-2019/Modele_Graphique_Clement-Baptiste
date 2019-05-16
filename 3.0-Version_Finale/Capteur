@@ -1,0 +1,41 @@
+
+public class Capteur {
+	
+	private String idcapteur;
+	private String nom;
+	private String description;
+	
+	public Capteur (String idcapteur, String nom, String description)
+	{
+		this.idcapteur=idcapteur;
+		this.nom=nom;
+		this.description = description;
+	}
+	
+	public String getCapteur()
+	{
+		return this.idcapteur;
+	}
+	
+	public String getNom()
+	{
+		return this.nom;
+	}
+	
+	public String getDescription()
+	{
+		return this.description;
+	}
+	
+	public void setCapteur(String idcapteur) {
+		this.idcapteur = idcapteur;
+	}
+	
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+}
