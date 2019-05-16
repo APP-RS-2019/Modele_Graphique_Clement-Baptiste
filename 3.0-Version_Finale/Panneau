@@ -1,0 +1,337 @@
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+
+import javax.swing.*;
+
+public class Panneau  extends JPanel{
+
+	private static final long serialVersionUID = 1L;
+	private ModeleStatique modeleFlotte;
+	private ModeleStatique modeleRobotsSelect;
+	private String section;
+	public Flotte flotte;
+	public Flotte robotsSelect;
+	public JTable tabRobots;
+	public JTable tableauSelect;
+
+
+	public Panneau(String section, Flotte flotte, Flotte robotsSelect,JTable tableauSelect,JTable tabRobots,ModeleStatique modeleFlotte,ModeleStatique modeleRobotsSelect ) {
+		this.section = section;
+		this.flotte=flotte;
+		this.robotsSelect=robotsSelect;
+		this.modeleFlotte=modeleFlotte;
+		this.modeleRobotsSelect=modeleRobotsSelect;
+		this.tabRobots = new JTable(modeleFlotte);
+		this.tableauSelect = new JTable(modeleRobotsSelect);
+		int temp=30;
+		this.initComponent(temp);
+	}
+
+	public void initComponent(int temp) {
+		JButton modifPos=new JButton("Modifier Position");
+		JSlider slide = new JSlider(JSlider.HORIZONTAL,0,2,0);
+		CanvasSimulation sim=new CanvasSimulation (robotsSelect);
+		switch(section)
+		{
+		case "Gestion":
+			this.removeAll();
+			//partie gauche, gestion de la flotte
+			JPanel gestion=new JPanel();gestion.setLayout(new GridLayout(4,1));
+			JLabel gestionRobots = new JLabel("Gestion des Robots");
+			JButton ajoutRobot =  new JButton("Ajouter");
+			JButton suprRobot=new JButton("supprimer");
+
+			gestion.add(gestionRobots);gestion.add(ajoutRobot); gestion.add(suprRobot);gestion.add(modifPos);
+			this.add(gestion);
+			ajoutRobot.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					new Ajout_Robot_Dialog(null, "Ajout robot", true,flotte,tabRobots,modeleFlotte);
+				}
+			});
+			suprRobot.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					boolean test=false;
+					int[] selection = tabRobots.getSelectedRows();
+					if(tabRobots.getSelectedRowCount()==0) {
+						new Problem_Dialog(null,"Problème de suppression", true, "La suppression du robot est impossible.\naucun robot n'est sélectionné");
+					}
+					else {
+						for(int i = selection.length - 1; i >= 0; i--) {
+							for(int j=0;j<robotsSelect.tailleFlotte();j++) {
+								if (robotsSelect.contenuFlotte(j).equals(flotte.contenuFlotte(selection[i]))) {
+									test=true;
+								}
+							}
+							if (!test) {
+								modeleFlotte.removeRobot(selection[i]);
+								flotte.deleteRobot(flotte.contenuFlotte(selection[i]));
+							}
+							else {
+								new Problem_Dialog(null,"Problème de suppression", true, "La suppression du robot est impossible.\nil est déjà contenue dans la flotte de robots\n selectionnés");
+								test=false;
+							}
+						}
+					}
+				}
+			});
+			modifPos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						new Modif_Position_Dialog(null, "titre", true,flotte.contenuFlotte(tabRobots.getSelectedRow()));
+					}
+					catch (Exception e){
+						new Problem_Dialog(null, "modification impossible", true, "aucun robot n'est sélectionné");
+					}
+					initComponent(30);
+
+				}
+			});
+
+			//partie centre gauche - gestion flotte globale
+			JPanel flotteGauche =new JPanel();
+			flotteGauche.setLayout(new BorderLayout());
+			flotteGauche.add(new JLabel("Flotte des Robots disponibles"),BorderLayout.NORTH);
+			flotteGauche.add(new JScrollPane(tabRobots),BorderLayout.CENTER);
+			JButton viderRobot=new JButton("Vider la flotte disponible");
+			viderRobot.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent arg0) {
+					if (robotsSelect.tailleFlotte()!=0) {
+						new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible de vider la flotte,\nvous gérez déjà une flotte active.");
+					}
+					else{flotte.viderFlotte(modeleFlotte);}
+				}
+			});
+			flotteGauche.add(viderRobot,BorderLayout.SOUTH);
+			this.add(flotteGauche);
+
+			//Partie centre droite - robots selectionnés: 
+			JButton glisserD=new JButton("Ajouter");
+			JButton glisserG= new JButton("Retirer");
+
+			JPanel flotteDroite =new JPanel();
+			flotteDroite.setLayout(new BorderLayout());
+			flotteDroite.add(new JLabel("Flotte des Robots sélectionnés et près pour être utilisé"),BorderLayout.NORTH);
+			flotteDroite.add(new JScrollPane(tableauSelect),BorderLayout.CENTER);
+			JButton viderSelect=new JButton("Deselectionner tous les robots");
+			viderSelect.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent arg0) {
+					robotsSelect.viderFlotte(modeleRobotsSelect);
+				}
+			});
+			flotteDroite.add(viderSelect,BorderLayout.SOUTH);
+			this.add(flotteDroite);
+
+			JPanel gestionFlotte= new JPanel();gestionFlotte.setLayout(new GridLayout(3,1));
+			JLabel gererLaFlotte = new JLabel("Gestion de la flotte");
+			gestionFlotte.add(gererLaFlotte);
+			gestionFlotte.add(glisserD);
+			gestionFlotte.add(glisserG);
+			this.add(gestionFlotte);
+
+			glisserD.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					int selection=tabRobots.getSelectedRow();
+					robotsSelect.addRobot(flotte.contenuFlotte(selection));
+					modeleRobotsSelect.addRobot(flotte.contenuFlotte(selection));
+				}
+			});
+			glisserG.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					int[] selection = tableauSelect.getSelectedRows();
+					for(int i = selection.length - 1; i >= 0; i--){
+						modeleRobotsSelect.removeRobot(selection[i]);
+						robotsSelect.deleteRobot(robotsSelect.contenuFlotte(i));
+					}
+				}
+			});
+			break;
+
+		case "Action":
+			JPanel actions = new JPanel();
+			JButton pepper = new JButton("Pepper");JButton nao = new JButton("Nao"); JButton robotino = new JButton("Robotino"); JButton peeckee = new JButton("Peeckee-1R");
+			actions.add(pepper);actions.add(nao);actions.add(robotino);actions.add(peeckee);
+			this.add(actions);
+			pepper.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent arg0) {
+					new Telecommande(null,"Pepper",true);
+				}
+
+			});	
+			nao.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent arg0) {
+					new Telecommande(null,"Nao",true);
+				}
+
+			});
+			robotino.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent arg0) {
+					new Telecommande(null,"Robotino",true);
+				}
+
+			});
+			peeckee.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent arg0) {
+					new Telecommande(null,"peeckee",true);
+				}
+
+			});
+
+			JScrollPane actionManu = new JScrollPane(actions);
+			this.add(actionManu);	
+
+			break;
+		case "Simulation":
+			//Dimension dimPiece=new Dimension(2*700,2*270)
+			this.removeAll();
+			this.setLayout(new FlowLayout());
+			sim.setPreferredSize(new Dimension(1200,600));
+			sim.setBackground(Color.white);
+
+			this.add(sim);
+			this.add(new JScrollPane(tableauSelect), BorderLayout.CENTER);
+			modifPos.setPreferredSize(new Dimension(200,20));
+			modifPos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						new Modif_Position_Dialog(null, "titre", true,robotsSelect.contenuFlotte(tableauSelect.getSelectedRow()));
+					}
+					catch (Exception e){
+						new Problem_Dialog(null, "modification impossible", true, "aucun robot n'est sélectionné");
+					}
+					initComponent(30);
+
+				}
+			});
+			this.add(modifPos);
+
+
+
+			//télécommande
+			Dimension dim=new Dimension(50,50);
+			JPanel telecom = new JPanel();
+			telecom.setPreferredSize(new Dimension(170,170));
+			telecom.setBorder(BorderFactory.createLineBorder(Color.black));
+			telecom.setBackground(Color.white);
+			telecom.setLayout(new GridBagLayout());
+			GridBagConstraints gbc = new GridBagConstraints();
+			JButton avancer = new JButton("avancer");avancer.setPreferredSize(dim);avancer.setBackground(Color.lightGray);avancer.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton droite = new JButton("droit");droite.setPreferredSize(dim);droite.setBackground(Color.lightGray);droite.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton gauche = new JButton("gauche");gauche.setPreferredSize(dim);gauche.setBackground(Color.lightGray);gauche.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton reculer = new JButton("reculer");reculer.setPreferredSize(dim);reculer.setBackground(Color.lightGray);reculer.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton rotationDroite =new JButton("→");rotationDroite.setPreferredSize(dim);rotationDroite.setBackground(Color.lightGray);rotationDroite.setBorder(BorderFactory.createRaisedBevelBorder());
+			JButton rotationGauche =new JButton("←");rotationGauche.setPreferredSize(dim);rotationGauche.setBackground(Color.lightGray);rotationGauche.setBorder(BorderFactory.createRaisedBevelBorder());
+
+			gbc.gridx=0; gbc.gridy=0;gbc.gridheight=1;gbc.gridwidth=1;
+			telecom.add(rotationDroite,gbc);
+			gbc.gridx=1;
+			telecom.add(avancer,gbc);
+			gbc.gridx=2;
+			telecom.add(rotationGauche,gbc);
+			gbc.gridwidth= GridBagConstraints.REMAINDER ;gbc.gridx=2;
+			gbc.gridx=0; gbc.gridy=1;gbc.gridheight=1;gbc.gridwidth=1;
+			telecom.add(gauche,gbc);
+			gbc.gridx=1;
+			gbc.gridx=2;
+			telecom.add(droite,gbc);
+			gbc.gridx=0;gbc.gridy=2;
+			gbc.gridx=1;
+			telecom.add(reculer,gbc);
+
+
+
+
+
+			//barre progressive
+
+			slide.setMaximum(100);
+			slide.setMinimum(0);
+			slide.setValue(temp);
+			slide.setPaintTicks(true);
+			slide.setPaintLabels(true);
+			slide.setMinorTickSpacing(10);
+			slide.setMajorTickSpacing(20);
+			this.add(slide);
+			this.add(telecom);
+			rotationDroite.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					robotsSelect.contenuFlotte(tableauSelect.getSelectedRow()).setAngle(robotsSelect.contenuFlotte(tableauSelect.getSelectedRow()).getAngle()-15);
+					sim.getIgnoreRepaint();
+					initComponent(slide.getValue());
+				}
+			});
+			rotationGauche.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					robotsSelect.contenuFlotte(tableauSelect.getSelectedRow()).setAngle(robotsSelect.contenuFlotte(tableauSelect.getSelectedRow()).getAngle()+15);
+					sim.getIgnoreRepaint();
+					initComponent(slide.getValue());
+				}
+			});
+			avancer.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					Robot robSel=robotsSelect.contenuFlotte(tableauSelect.getSelectedRow());
+					float teta=(float)(robSel.getAngle()*Math.PI/180);
+					float x= robSel.getPosx();
+					float y= robSel.getPosy();
+					float r= slide.getValue();
+					robotsSelect.intentionToMove(robSel,(float)(x+r*Math.cos(teta)),(float)(y -r*Math.sin(teta)));
+					sim.repaint();
+					initComponent(slide.getValue());
+				}
+			});
+			gauche.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					Robot robSel=robotsSelect.contenuFlotte(tableauSelect.getSelectedRow());
+					float teta=(float)(robSel.getAngle()*Math.PI/180);
+					float x= robSel.getPosx();
+					float y= robSel.getPosy();
+					float r= slide.getValue();
+					robotsSelect.intentionToMove(robSel,(float)(x-r*Math.sin(teta)),(float)(y-r*Math.cos(teta)));
+					sim.repaint();
+					initComponent(slide.getValue());
+				}
+			});
+			droite.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent arg0) {
+					Robot robSel=robotsSelect.contenuFlotte(tableauSelect.getSelectedRow());
+					float teta=(float)(robSel.getAngle()*Math.PI/180);
+					float x= robSel.getPosx();
+					float y= robSel.getPosy();
+					float r= slide.getValue();
+					robotsSelect.intentionToMove(robSel,(float)(x+r*Math.sin(teta)),(float)(y+r*Math.cos(teta)));
+					sim.repaint();
+					initComponent(slide.getValue());
+				}
+
+			});
+			reculer.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					Robot robSel=robotsSelect.contenuFlotte(tableauSelect.getSelectedRow());
+					float teta=(float)(robSel.getAngle()*Math.PI/180);
+					float x= robSel.getPosx();
+					float y= robSel.getPosy();
+					float r= slide.getValue();
+					robotsSelect.intentionToMove(robSel,(float)(x-r*Math.cos(teta)),(float)(y+r*Math.sin(teta)));
+					sim.repaint();
+					initComponent(slide.getValue());
+				}
+
+
+			});
+			this.setVisible(true);
+			break;
+		}
+	}
+
+	public void start() {
+		requestFocus();
+	}	
+}
