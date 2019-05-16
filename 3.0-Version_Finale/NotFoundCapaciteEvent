@@ -1,0 +1,13 @@
+import java.util.EventObject;
+
+public class NotFoundCapaciteEvent extends EventObject{
+	/*Evenement qui permet de gérer le fait qu'un robot ne puisse 
+	 * qu'utiliser des capacites qu'il possede.*/
+	
+	Capacite capacite;
+	
+	public NotFoundCapaciteEvent(Object source, Capacite capacite) {
+		super(source);
+		this.capacite = capacite;
+	}
+}
