@@ -1,0 +1,412 @@
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+
+public class Menu extends JFrame {
+	private static final long serialVersionUID = 1L;
+
+	private Menu mainFrame;
+	
+	public JTable tableauSelect;
+	public JTable tabRobots;
+	private ModeleStatique modeleFlotte;
+	private ModeleStatique modeleRobotsSelect;
+
+	private Flotte flotte;
+	public Flotte robotsSelect;
+	private JMenuBar menuBar = new JMenuBar();
+
+	private JMenu fichier = new JMenu("Fichier");
+	private JMenu ouvrir_recent = new JMenu("Ouvert récemment");
+	private File file;
+	
+	private String fileRecentName[]= {"<Aucun>","","","",""};
+	private File fileRecent[]=new File[5];
+
+
+
+	private JMenu edition = new JMenu("Edition");
+	private JMenu aide = new JMenu("Aide");
+
+	private JMenuItem ouvrir = new JMenuItem("Ouvrir");
+	private JMenuItem sauvegarder = new JMenuItem("Sauvegarder");
+	private JMenuItem fermer = new JMenuItem("Fermer");
+	private JMenuItem ajout_robot = new JMenuItem("Ajout robot");
+	private JMenuItem voir_flotte = new JMenuItem("Voir flotte");
+	private JMenuItem documentation = new JMenuItem("Documentation");
+	private JMenuItem a_propos = new JMenuItem("À propos");
+
+	private JMenuItem ex[] = new JMenuItem[5];
+	private JMenuItem exe0 = new JMenuItem(fileRecentName[0]);
+	private JMenuItem exe1 = new JMenuItem(fileRecentName[1]);
+	private JMenuItem exe2 = new JMenuItem(fileRecentName[2]);
+	private JMenuItem exe3 = new JMenuItem(fileRecentName[3]);
+	private JMenuItem exe4 = new JMenuItem(fileRecentName[4]);
+
+
+	public static void main(String[] args){  
+		new Menu();
+	}
+
+	public Menu(){
+		this.mainFrame=this;
+		this.flotte=new Flotte("0");
+		this.robotsSelect=new Flotte("1");
+		this.setTitle("APP - RS - 2019");
+		this.setExtendedState(Frame.MAXIMIZED_BOTH);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocationRelativeTo(null);
+		
+		this.fichier.add(ouvrir);
+		
+		//Ouvrir Recent
+		ex[0]=exe0;ex[1]=exe1;ex[2]=exe2;ex[3]=exe3;ex[4]=exe4;
+		for (int i=0;i<5;i++) {
+			this.ouvrir_recent.add(ex[i]);
+		}
+		this.fichier.add(ouvrir_recent);
+		this.fichier.add(sauvegarder);
+
+		this.fichier.addSeparator();
+
+		fermer.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}        
+		});
+
+		this.fichier.add(fermer);
+		this.edition.add(ajout_robot);
+		this.modeleFlotte=new ModeleStatique(this.flotte);
+		this.modeleRobotsSelect=new ModeleStatique(this.robotsSelect);
+		this.tabRobots = new JTable(modeleFlotte);
+		this.tableauSelect = new JTable(modeleRobotsSelect);
+
+		this.edition.add(voir_flotte);
+		this.aide.add(documentation);
+		this.aide.add(a_propos);
+
+		this.menuBar.add(fichier);
+		this.menuBar.add(edition);
+		this.menuBar.add(aide);
+		this.setJMenuBar(menuBar);
+
+		Panneau[] tPan = {new Panneau("Gestion",flotte,this.robotsSelect, this.tableauSelect,this.tabRobots,this.modeleFlotte,this.modeleRobotsSelect), new Panneau("Action",this.flotte,this.robotsSelect,this.tableauSelect,this.tabRobots,this.modeleFlotte,this.modeleRobotsSelect),new Panneau("Simulation",flotte,this.robotsSelect,this.tableauSelect,this.tabRobots,this.modeleFlotte,this.modeleRobotsSelect)};
+		JTabbedPane onglet = new JTabbedPane();
+		onglet.add("Gestion", tPan[0]);
+		onglet.add("Action", tPan[1]);
+		onglet.add("Simulation",tPan[2]);
+
+		ajout_robot.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				new Ajout_Robot_Dialog(null, "Ajout robot", true,flotte,tabRobots,modeleFlotte);
+				tPan[0].initComponent(30);
+			}        
+		});
+
+		sauvegarder.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				final JFileChooser fc = new JFileChooser();
+				fc.showSaveDialog(Menu.this);
+				File file = new File(fc.getSelectedFile() +  ".obj");
+				try {
+					FileOutputStream f = new FileOutputStream(file);
+					ObjectOutputStream oos = new ObjectOutputStream(f);
+					oos.writeObject(flotte);
+					oos.close();
+					new Problem_Dialog(null, "Enregistrement réussit", true, "Enregistrement réussit");
+				}
+				catch (Exception ex) {
+					ex.printStackTrace();
+					new Problem_Dialog(null,"Problème d'enregistrement", true, "Erreur d'enregistrement");
+				}
+			}});
+
+		ouvrir.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+					final JFileChooser fc = new JFileChooser();
+
+					fc.showOpenDialog(Menu.this);
+					fileRecentName[4]=fileRecentName[3];
+					fileRecent[4]=fileRecent[3];
+					fileRecentName[3]=fileRecentName[2];
+					fileRecent[3]=fileRecent[2];
+					fileRecentName[2]=fileRecentName[1];
+					fileRecent[2]=fileRecent[1];
+					fileRecentName[1]=fileRecentName[0];
+					fileRecent[1]=fileRecent[0];
+					ex[4].setText(fileRecentName[4]);
+					ex[3].setText(fileRecentName[3]);
+					ex[2].setText(fileRecentName[2]);
+					ex[1].setText(fileRecentName[1]);
+					
+					file = fc.getSelectedFile();
+					fileRecentName[0]=file.getName();
+					ex[0].setText(fileRecentName[0]);
+					fileRecent[0]=file;
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		exe0.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+
+					file = fileRecent[0];
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		
+		exe1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+
+					file = fileRecent[1];
+					
+					//Manipulation de l'ordre des noms et fichiers
+					fileRecentName[1]=fileRecentName[0];
+					fileRecent[1]=fileRecent[0];
+					fileRecent[0]=file;
+					fileRecentName[0]=file.getName();
+					for(int i=0;i<2;i++) {ex[2-i-1].setText(fileRecentName[2-i-1]);}
+
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		exe2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+
+					file = fileRecent[2];
+					
+					//Manipulation de l'ordre des noms et fichiers
+					fileRecentName[2]=fileRecentName[1];
+					fileRecent[2]=fileRecent[1];
+					fileRecentName[1]=fileRecentName[0];
+					fileRecent[1]=fileRecent[0];
+					
+					fileRecent[0]=file;
+					fileRecentName[0]=file.getName();
+					for(int i=0;i<3;i++) {ex[3-i-1].setText(fileRecentName[3-i-1]);}
+					
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		
+		exe3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+
+					file = fileRecent[3];
+					
+					//Manipulation de l'ordre des noms et fichiers
+					fileRecentName[3]=fileRecentName[2];
+					fileRecent[3]=fileRecent[2];
+					fileRecentName[2]=fileRecentName[1];
+					fileRecent[2]=fileRecent[1];
+					fileRecentName[1]=fileRecentName[0];
+					fileRecent[1]=fileRecent[0];
+					
+					fileRecent[0]=file;
+					fileRecentName[0]=file.getName();
+					for(int i=0;i<4;i++) {ex[4-i-1].setText(fileRecentName[4-i-1]);}
+					
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		
+		exe4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (robotsSelect.tailleFlotte()!=0) {
+					new Problem_Dialog(null,"Problème d'ouverture",true,"Impossible d'ouvrir une nouvelle flotte,\nvous gérez déjà une flotte active.");
+				}
+				else {
+
+					file = fileRecent[4];
+					
+					//Manipulation de l'ordre des noms et fichiers
+					fileRecentName[4]=fileRecentName[3];
+					fileRecent[4]=fileRecent[3];
+					fileRecentName[3]=fileRecentName[2];
+					fileRecent[3]=fileRecent[2];
+					fileRecentName[2]=fileRecentName[1];
+					fileRecent[2]=fileRecent[1];
+					fileRecentName[1]=fileRecentName[0];
+					fileRecent[1]=fileRecent[0];
+					
+					fileRecent[0]=file;
+					fileRecentName[0]=file.getName();
+					for(int i=0;i<5;i++) {ex[5-i-1].setText(fileRecentName[5-i-1]);}
+					
+					try {
+						FileInputStream fi = new FileInputStream(file);
+						ObjectInputStream oi = new ObjectInputStream(fi);
+
+						flotte.viderFlotte(modeleFlotte);
+
+						Flotte flotteouv = (Flotte) oi.readObject();
+
+						for (int i=0;i<flotteouv.tailleFlotte();i++) {
+							flotte.addRobot(flotteouv.contenuFlotte(i));
+							modeleFlotte.addRobot(flotteouv.contenuFlotte(i));
+						}
+						oi.close();
+						new Problem_Dialog(null, "Lecture réussite", true, "Lecture réussite!!\n\nPensez à verifier les nouvelles positions des robots");
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+						new Problem_Dialog(null,"Problème de lecture", true, "Erreur de lecture");
+					}
+				}
+			}
+		});
+		
+		voir_flotte.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new Voir_Flotte_Dialog(flotte,modeleFlotte);
+				
+			}
+			
+		});
+		documentation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new Documentation_Dialog();
+			}
+			
+		});
+		
+		
+		
+		
+		a_propos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new A_Propos_Dialog(null,"A propos",true);
+			}
+		});
+		pack();
+		this.getContentPane().add(onglet);
+		
+		this.setVisible(true);
+	}
+}
