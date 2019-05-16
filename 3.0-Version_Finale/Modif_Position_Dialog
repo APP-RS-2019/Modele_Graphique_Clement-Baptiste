@@ -1,0 +1,95 @@
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.NumberFormat;
+
+import javax.swing.*;
+
+
+public class Modif_Position_Dialog extends JDialog{
+	private Robot robot;
+	private static final long serialVersionUID = 1L;
+	public Modif_Position_Dialog(JFrame parent, String title, boolean modal,Robot robot){
+		//On appelle le construteur de JDialog correspondant
+		super(parent, title, modal);
+		this.robot=robot;
+		this.initComponent();
+		//On spécifie une taille
+		this.setSize(300, 200);
+		//La position
+		this.setLocationRelativeTo(null);
+		//La boîte ne devra pas être redimensionnable
+		this.setResizable(false);
+		//Enfin on l'affiche
+		this.setVisible(true);
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	}
+
+	public void initComponent() {
+		int x =(int)(robot.getPosx());
+		int y =(int)(robot.getPosy());
+		int a =(int)(robot.getAngle());
+		String sx=Integer.toString(x);
+		String sy=Integer.toString(y);
+		String sa=Integer.toString(a);
+		Dimension dim=new Dimension(50,25);
+		JPanel panPosition = new JPanel();
+		panPosition.setBorder(BorderFactory.createTitledBorder(robot.getNom()));
+		panPosition.setLayout(new GridLayout(4,1));
+		JLabel titre= new JLabel("Choisissez les nouvelles positions :");
+		panPosition.add(titre);
+		
+		JLabel posx=new JLabel("Pos X : ");
+		JTextField setx=new JTextField();
+		setx.setText(sx);
+		setx.setPreferredSize(dim);
+		
+		JLabel posy=new JLabel("Pos Y : ");
+		JTextField sety=new JTextField();
+		sety.setText(sy);
+		sety.setPreferredSize(dim);
+		
+		JLabel angle=new JLabel("Angle : ");
+		JTextField seta=new JTextField();
+		seta.setText(sa);
+		seta.setPreferredSize(dim);
+		
+		JPanel pos=new JPanel();
+		pos.add(posx);pos.add(setx);pos.add(posy);pos.add(sety);
+		JPanel panAngle=new JPanel();
+		panAngle.add(angle);panAngle.add(seta);
+		panPosition.add(pos);
+		panPosition.add(panAngle);
+		JPanel validation = new JPanel();
+		JButton ok= new JButton("OK");
+		JButton annuler=new JButton("Annuler");
+		validation.add(ok);validation.add(annuler);
+		panPosition.add(validation);
+		this.add(panPosition);
+		ok.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!(setx.getText()=="")){
+					robot.setPosx((float)((Integer.parseInt(setx.getText()))));
+				}
+				if (!(sety.getText()=="")){
+					robot.setPosy((float)((Integer.parseInt(sety.getText()))));
+				}
+				if (!(seta.getText()=="")) {
+					robot.setAngle((float)((Integer.parseInt(seta.getText()))));
+				}
+				dispose();
+				
+				
+			}
+			
+		});
+		annuler.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+			}
+		});
+
+
+
+	}
+}
