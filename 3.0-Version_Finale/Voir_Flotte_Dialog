@@ -1,0 +1,23 @@
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
+public class Voir_Flotte_Dialog extends JFrame {
+	private Flotte flotte;
+	private ModeleStatique modele;
+	
+	public Voir_Flotte_Dialog(Flotte flotte, ModeleStatique modele) {
+		super();
+		this.flotte=flotte;
+		this.modele=modele;
+		this.setSize(300, 300);
+		this.setTitle("Voir Flotte");
+		initComponent();
+		this.setVisible(true);
+	}
+	public void initComponent() {
+		JTable pan =new JTable(modele);
+		this.add(new JScrollPane(pan));
+	}
+}
