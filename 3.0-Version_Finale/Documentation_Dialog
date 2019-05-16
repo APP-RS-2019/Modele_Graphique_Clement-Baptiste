@@ -1,0 +1,16 @@
+import javax.swing.*;
+
+public class Documentation_Dialog extends JFrame{
+
+	
+	
+	public Documentation_Dialog() {
+		super();
+		this.setSize(500,500);
+		this.setTitle("Documentation");
+		JTextArea texte=new JTextArea("inserer ici documentation");
+		texte.setEditable(false);
+		this.add(texte);
+		this.setVisible(true);
+	}
+}
